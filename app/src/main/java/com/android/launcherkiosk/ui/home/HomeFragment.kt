@@ -1,11 +1,15 @@
 package com.android.launcherkiosk.ui.home
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -13,31 +17,34 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.android.launcherkiosk.MainActivity
 import com.android.launcherkiosk.data.KioskRepository
+import com.android.launcherkiosk.ui.admin.AdminSettingsActivity
 import com.android.launcherkiosk.ui.bodyView
 import com.android.launcherkiosk.ui.dp
 import com.android.launcherkiosk.ui.screenRoot
-import com.android.launcherkiosk.ui.titleView
 
 class HomeFragment : Fragment() {
     private lateinit var repository: KioskRepository
-    private var logoClicks = 0
-    private var lastClickTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         repository = KioskRepository(requireContext())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
         val context = requireContext()
         val root = screenRoot(context)
-        val title = titleView(context, "LauncherKiosk").apply {
-            setOnClickListener { handleLogoClick() }
+        val header = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
         }
-        root.addView(title)
-        root.addView(bodyView(context, "仅显示管理员允许的应用。连续点击标题 5 次进入管理员入口。"))
+        header.addView(Button(context).apply {
+            text = "设置"
+            setOnClickListener { showAdminPasswordDialog() }
+        })
+        root.addView(header)
 
         val scroll = ScrollView(context)
         val grid = GridLayout(context).apply {
@@ -75,14 +82,20 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    private fun handleLogoClick() {
-        val now = System.currentTimeMillis()
-        logoClicks = if (now - lastClickTime > 1800) 1 else logoClicks + 1
-        lastClickTime = now
-        if (logoClicks >= 5) {
-            logoClicks = 0
-            (requireActivity() as MainActivity).showAdminLogin()
+    private fun showAdminPasswordDialog() {
+        val context = requireContext()
+        val input = EditText(context).apply {
+            hint = "管理员密码"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
+        AlertDialog.Builder(context).setTitle("管理员验证").setView(input)
+            .setNegativeButton("取消", null).setPositiveButton("进入设置") { _, _ ->
+                if (repository.verifyPassword(input.text.toString())) {
+                    startActivity(Intent(context, AdminSettingsActivity::class.java))
+                } else {
+                    Toast.makeText(context, "密码错误", Toast.LENGTH_SHORT).show()
+                }
+            }.show()
     }
 
     private fun launchApp(packageName: String) {

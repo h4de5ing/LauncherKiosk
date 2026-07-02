@@ -25,6 +25,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:theme="@style/Theme.LauncherKiosk.Wallpaper"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,6 +34,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.admin.AdminSettingsActivity"
+            android:exported="false"
+            android:label="Kiosk 设置" />
 
         <receiver
             android:name=".receiver.KioskDeviceAdminReceiver"
@@ -49,7 +55,7 @@
         <service
             android:name=".service.KioskAccessibilityService"
             android:exported="true"
-            android:label="@string/accessibility_service_label"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
