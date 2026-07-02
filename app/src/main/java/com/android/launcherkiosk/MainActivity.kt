@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import com.android.launcherkiosk.data.KioskRepository
 import com.android.launcherkiosk.ui.admin.AdminPanelFragment
 import com.android.launcherkiosk.ui.home.HomeFragment
-import com.android.launcherkiosk.ui.setup.PermissionGuideFragment
 import com.android.launcherkiosk.ui.setup.SetupWizardFragment
 import com.android.launcherkiosk.ui.whitelist.AppWhitelistFragment
 
@@ -57,12 +56,9 @@ class MainActivity : AppCompatActivity() {
     fun showWhitelist(fromSetup: Boolean = false) =
         replace(AppWhitelistFragment.newInstance(fromSetup), addToBackStack = true)
 
-    fun showPermissions() = replace(PermissionGuideFragment(), addToBackStack = true)
-
     private fun handleStartIntent(intent: Intent?) {
         when (intent?.action) {
             ACTION_OPEN_WHITELIST -> showWhitelist()
-            ACTION_OPEN_PERMISSIONS -> showPermissions()
             else -> if (repository.getSettings().adminPasswordHash.isBlank()) showSetup() else showHome()
         }
     }
@@ -111,6 +107,5 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val ACTION_OPEN_WHITELIST = "com.android.launcherkiosk.OPEN_WHITELIST"
-        const val ACTION_OPEN_PERMISSIONS = "com.android.launcherkiosk.OPEN_PERMISSIONS"
     }
 }

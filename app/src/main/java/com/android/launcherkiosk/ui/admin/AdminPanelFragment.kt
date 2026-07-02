@@ -68,7 +68,9 @@ class AdminPanelFragment : Fragment() {
             }
         })
         root.addView(actionButton(context, "修改白名单") { (requireActivity() as MainActivity).showWhitelist() })
-        root.addView(actionButton(context, "权限引导") { (requireActivity() as MainActivity).showPermissions() })
+        root.addView(actionButton(context, "打开设置页") {
+            startActivity(Intent(context, AdminSettingsActivity::class.java))
+        })
         root.addView(actionButton(context, "打开系统设置") { startActivity(Intent(Settings.ACTION_SETTINGS)) })
         root.addView(actionButton(context, "临时退出到系统桌面设置") { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) })
         root.addView(actionButton(context, "关闭设备管理器权限") { removeDeviceAdmin(context) })

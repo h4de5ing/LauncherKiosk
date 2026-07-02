@@ -6,6 +6,7 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceCategory
@@ -86,13 +87,22 @@ class AdminSettingsActivity : Activity() {
             screen.addPreference(action("修改管理员密码", "更新进入设置页所需的密码") {
                 showPasswordDialog()
             })
-            screen.addPreference(action("权限引导", permissionSummary()) {
-                openMain(MainActivity.ACTION_OPEN_PERMISSIONS)
-            })
 
-            screen.addPreference(PreferenceCategory(activity).apply { title = "系统入口" })
+            screen.addPreference(PreferenceCategory(activity).apply { title = "权限与系统" })
+            screen.addPreference(action("权限状态", permissionSummary()) {
+                buildSettings()
+            })
             screen.addPreference(action("默认桌面设置", "将 LauncherKiosk 设为默认桌面") {
                 startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+            })
+            screen.addPreference(action("启用设备管理器", deviceAdminSummary()) {
+                requestDeviceAdmin()
+            })
+            screen.addPreference(action("开启辅助服务", accessibilitySummary()) {
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            })
+            screen.addPreference(action("开启悬浮窗权限", overlaySummary()) {
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${activity.packageName}")))
             })
             screen.addPreference(action("系统设置", "打开 Android 系统设置") {
                 startActivity(Intent(Settings.ACTION_SETTINGS))
@@ -158,6 +168,14 @@ class AdminSettingsActivity : Activity() {
             return if (policyManager.isDeviceAdminActive()) "当前已启用，点击后关闭" else "当前未启用"
         }
 
+        private fun accessibilitySummary(): String {
+            return if (policyManager.isAccessibilityServiceEnabled()) "当前已启用" else "当前未启用"
+        }
+
+        private fun overlaySummary(): String {
+            return if (policyManager.canDrawOverlay()) "当前已启用" else "当前未启用"
+        }
+
         private fun enabledText(enabled: Boolean): String = if (enabled) "已启用" else "未启用"
 
         private fun removeDeviceAdmin() {
@@ -170,6 +188,14 @@ class AdminSettingsActivity : Activity() {
             } else {
                 Toast.makeText(activity, "设备管理器权限未启用", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        private fun requestDeviceAdmin() {
+            val component = ComponentName(activity, KioskDeviceAdminReceiver::class.java)
+            startActivity(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, component)
+                putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "用于提高 LauncherKiosk 被卸载的门槛。")
+            })
         }
     }
 }

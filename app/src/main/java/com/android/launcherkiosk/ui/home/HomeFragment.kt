@@ -22,6 +22,7 @@ import com.android.launcherkiosk.ui.admin.AdminSettingsActivity
 import com.android.launcherkiosk.ui.bodyView
 import com.android.launcherkiosk.ui.dp
 import com.android.launcherkiosk.ui.screenRoot
+import com.android.launcherkiosk.util.AppIconLoader
 
 class HomeFragment : Fragment() {
     private lateinit var repository: KioskRepository
@@ -40,6 +41,7 @@ class HomeFragment : Fragment() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
+        header.addView(View(context), LinearLayout.LayoutParams(0, 1, 1f))
         header.addView(Button(context).apply {
             text = "设置"
             setOnClickListener { showAdminPasswordDialog() }
@@ -48,10 +50,10 @@ class HomeFragment : Fragment() {
 
         val scroll = ScrollView(context)
         val grid = GridLayout(context).apply {
-            columnCount = 3
-            useDefaultMargins = true
+            columnCount = 5
+            useDefaultMargins = false
         }
-        scroll.addView(grid)
+        scroll.addView(grid, ViewGroup.LayoutParams(-1, -2))
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
 
         val apps = repository.getWhitelist()
@@ -62,21 +64,28 @@ class HomeFragment : Fragment() {
                 val item = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER
-                    val padding = context.dp(8)
+                    val padding = context.dp(2)
                     setPadding(padding, padding, padding, padding)
                     setOnClickListener { launchApp(app.packageName) }
                 }
                 val icon = ImageView(context).apply {
-                    setImageDrawable(runCatching { context.packageManager.getApplicationIcon(app.packageName) }.getOrNull())
+                    setImageDrawable(AppIconLoader.loadBoundedIcon(context, app.packageName, 48))
+                    scaleType = ImageView.ScaleType.FIT_CENTER
                 }
-                item.addView(icon, LinearLayout.LayoutParams(context.dp(54), context.dp(54)))
+                item.addView(icon, LinearLayout.LayoutParams(context.dp(48), context.dp(48)))
                 item.addView(TextView(context).apply {
                     text = app.appName
                     gravity = Gravity.CENTER
                     maxLines = 2
                     textSize = 13f
+                    setTextColor(0xFFFFFFFF.toInt())
+                    setShadowLayer(3f, 0f, 1f, 0xAA000000.toInt())
                 })
-                grid.addView(item, ViewGroup.LayoutParams(context.dp(104), context.dp(118)))
+                grid.addView(item, GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = context.dp(98)
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                })
             }
         }
         return root

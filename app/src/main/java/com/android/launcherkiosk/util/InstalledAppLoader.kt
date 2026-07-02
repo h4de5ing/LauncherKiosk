@@ -15,8 +15,7 @@ class InstalledAppLoader(private val context: Context) {
                 if (packageName == context.packageName) return@mapNotNull null
                 InstalledApp(
                     packageName = packageName,
-                    appName = info.loadLabel(packageManager).toString(),
-                    icon = info.loadIcon(packageManager)
+                    appName = info.loadLabel(packageManager).toString()
                 )
             }
             .distinctBy { it.packageName }

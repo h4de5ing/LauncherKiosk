@@ -1,5 +1,6 @@
 package com.android.launcherkiosk.ui.setup
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.android.launcherkiosk.MainActivity
 import com.android.launcherkiosk.data.KioskRepository
+import com.android.launcherkiosk.ui.admin.AdminSettingsActivity
 import com.android.launcherkiosk.ui.actionButton
 import com.android.launcherkiosk.ui.bodyView
 import com.android.launcherkiosk.ui.screenRoot
@@ -26,7 +28,7 @@ class SetupWizardFragment : Fragment() {
         val context = requireContext()
         val root = screenRoot(context)
         root.addView(titleView(context, "首次配置"))
-        root.addView(bodyView(context, "完成管理员密码、白名单和权限引导后进入受控主页。"))
+        root.addView(bodyView(context, "设置管理员密码后，可进入设置页继续配置白名单和系统权限。"))
 
         val password = EditText(context).apply {
             hint = "管理员密码，至少 4 位"
@@ -42,8 +44,13 @@ class SetupWizardFragment : Fragment() {
                 Toast.makeText(context, "密码已保存", Toast.LENGTH_SHORT).show()
             }
         })
-        root.addView(actionButton(context, "选择白名单应用") { (requireActivity() as MainActivity).showWhitelist(fromSetup = true) })
-        root.addView(actionButton(context, "打开权限引导") { (requireActivity() as MainActivity).showPermissions() })
+        root.addView(actionButton(context, "进入设置页继续配置") {
+            if (repository.getSettings().adminPasswordHash.isBlank()) {
+                Toast.makeText(context, "请先设置管理员密码", Toast.LENGTH_SHORT).show()
+            } else {
+                startActivity(Intent(context, AdminSettingsActivity::class.java))
+            }
+        })
         root.addView(actionButton(context, "完成配置并进入主页") {
             if (repository.getSettings().adminPasswordHash.isBlank()) {
                 Toast.makeText(context, "请先设置管理员密码", Toast.LENGTH_SHORT).show()
