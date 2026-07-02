@@ -16,6 +16,7 @@ import android.text.InputType
 import android.widget.EditText
 import android.widget.Toast
 import com.android.launcherkiosk.MainActivity
+import com.android.launcherkiosk.R
 import com.android.launcherkiosk.data.KioskRepository
 import com.android.launcherkiosk.policy.KioskPolicyManager
 import com.android.launcherkiosk.receiver.KioskDeviceAdminReceiver
@@ -49,40 +50,40 @@ class AdminSettingsActivity : Activity() {
         private fun buildSettings() {
             val screen = preferenceManager.createPreferenceScreen(activity)
 
-            screen.addPreference(PreferenceCategory(activity).apply { title = "配置" })
-            screen.addPreference(action("修改管理员密码", "更新进入设置页所需的密码") {
+            screen.addPreference(PreferenceCategory(activity).apply { title = getString(R.string.config) })
+            screen.addPreference(action(getString(R.string.change_admin_password), getString(R.string.change_admin_password_summary)) {
                 showPasswordDialog()
             })
-            screen.addPreference(action("应用白名单", "选择主页允许启动的应用") {
+            screen.addPreference(action(getString(R.string.app_whitelist), getString(R.string.app_whitelist_summary)) {
                 openMain(MainActivity.ACTION_OPEN_WHITELIST)
             })
 
-            screen.addPreference(PreferenceCategory(activity).apply { title = "权限与系统" })
+            screen.addPreference(PreferenceCategory(activity).apply { title = getString(R.string.permissions_and_system) })
             screen.addPreference(statusSwitch(
-                title = "默认桌面设置",
-                summary = "将 LauncherKiosk 设为默认桌面",
+                title = getString(R.string.default_home_settings),
+                summary = getString(R.string.default_home_summary),
                 checked = policyManager.isDefaultLauncher()
             ) {
                 startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
             })
             screen.addPreference(statusSwitch(
-                title = "设备管理器",
+                title = getString(R.string.device_admin),
                 summary = deviceAdminSummary(),
                 checked = policyManager.isDeviceAdminActive()
             ) {
                 requestDeviceAdmin()
             })
             screen.addPreference(statusSwitch(
-                title = "辅助服务",
+                title = getString(R.string.accessibility_service),
                 summary = accessibilitySummary(),
                 checked = policyManager.isAccessibilityServiceEnabled()
             ) {
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             })
-            screen.addPreference(action("系统设置", "打开 Android 系统设置") {
+            screen.addPreference(action(getString(R.string.system_settings), getString(R.string.system_settings_summary)) {
                 startActivity(Intent(Settings.ACTION_SETTINGS))
             })
-            screen.addPreference(action("返回主页", "退出管理员设置") {
+            screen.addPreference(action(getString(R.string.return_home), getString(R.string.return_home_summary)) {
                 openMain(null)
                 activity.finish()
             })
@@ -121,20 +122,20 @@ class AdminSettingsActivity : Activity() {
 
         private fun showPasswordDialog() {
             val input = EditText(activity).apply {
-                hint = "新管理员密码，至少 4 位"
+                hint = getString(R.string.admin_password_min_hint)
                 inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             }
             AlertDialog.Builder(activity)
-                .setTitle("修改管理员密码")
+                .setTitle(R.string.change_admin_password)
                 .setView(input)
-                .setNegativeButton("取消", null)
-                .setPositiveButton("保存") { _, _ ->
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.save) { _, _ ->
                     val value = input.text.toString()
                     if (value.length < 4) {
-                        Toast.makeText(activity, "密码至少 4 位", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity, R.string.password_min_error, Toast.LENGTH_SHORT).show()
                     } else {
                         repository.setAdminPassword(value)
-                        Toast.makeText(activity, "密码已修改", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity, R.string.password_changed, Toast.LENGTH_SHORT).show()
                     }
                 }
                 .show()
@@ -149,18 +150,18 @@ class AdminSettingsActivity : Activity() {
         }
 
         private fun deviceAdminSummary(): String {
-            return if (policyManager.isDeviceAdminActive()) "当前已启用" else "当前未启用"
+            return if (policyManager.isDeviceAdminActive()) getString(R.string.current_enabled) else getString(R.string.current_disabled)
         }
 
         private fun accessibilitySummary(): String {
-            return if (policyManager.isAccessibilityServiceEnabled()) "当前已启用" else "当前未启用"
+            return if (policyManager.isAccessibilityServiceEnabled()) getString(R.string.current_enabled) else getString(R.string.current_disabled)
         }
 
         private fun requestDeviceAdmin() {
             val component = ComponentName(activity, KioskDeviceAdminReceiver::class.java)
             startActivity(Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
                 putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, component)
-                putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "用于提高 LauncherKiosk 被卸载的门槛。")
+                putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, getString(R.string.device_admin_explanation))
             })
         }
     }

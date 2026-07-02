@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.android.launcherkiosk.MainActivity
+import com.android.launcherkiosk.R
 import com.android.launcherkiosk.data.InstalledApp
 import com.android.launcherkiosk.data.KioskRepository
 import com.android.launcherkiosk.data.WhitelistApp
@@ -39,8 +40,8 @@ class AppWhitelistFragment : Fragment() {
         val root = screenRoot(context).apply {
             setBackgroundColor(0xFFFFFFFF.toInt())
         }
-        root.addView(titleView(context, "应用白名单"))
-        root.addView(bodyView(context, "选择允许用户从 Kiosk 主页启动的应用。"))
+        root.addView(titleView(context, getString(R.string.app_whitelist)))
+        root.addView(bodyView(context, getString(R.string.whitelist_description)))
 
         val current = repository.getWhitelist().map { it.packageName }.toSet()
         val apps = InstalledAppLoader(context).loadLaunchableApps()
@@ -57,14 +58,14 @@ class AppWhitelistFragment : Fragment() {
             list.addView(appRow(app, checkbox))
         }
 
-        root.addView(actionButton(context, "保存白名单") {
+        root.addView(actionButton(context, getString(R.string.save_whitelist)) {
             val selected = checkedApps.values.mapIndexedNotNull { index, pair ->
                 val app = pair.first
                 val checkbox = pair.second
                 if (!checkbox.isChecked) null else WhitelistApp(app.packageName, app.appName, true, index)
             }
             repository.setWhitelist(selected)
-            Toast.makeText(context, "白名单已保存", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.whitelist_saved, Toast.LENGTH_SHORT).show()
             if (arguments?.getBoolean(ARG_FROM_SETUP) == true) {
                 requireActivity().supportFragmentManager.popBackStack()
             } else {

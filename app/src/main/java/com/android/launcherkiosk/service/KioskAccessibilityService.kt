@@ -13,6 +13,7 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
+import com.android.launcherkiosk.R
 import com.android.launcherkiosk.data.KioskRepository
 import com.android.launcherkiosk.util.DebugUtils
 import java.util.concurrent.Executors
@@ -137,7 +138,7 @@ class KioskAccessibilityService : AccessibilityService() {
             setBackgroundColor(if (DebugUtils.isDebuggable(this@KioskAccessibilityService)) DEBUG_MASK_COLOR else Color.TRANSPARENT)
             setOnTouchListener { _, event ->
                 if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                    Toast.makeText(this@KioskAccessibilityService, "当前模式不允许此操作", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@KioskAccessibilityService, R.string.blocked_operation, Toast.LENGTH_SHORT).show()
                     dispatchBackAsync()
                 }
                 true

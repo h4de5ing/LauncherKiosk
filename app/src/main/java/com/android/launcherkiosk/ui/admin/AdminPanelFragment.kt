@@ -14,6 +14,7 @@ import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.android.launcherkiosk.MainActivity
+import com.android.launcherkiosk.R
 import com.android.launcherkiosk.data.KioskRepository
 import com.android.launcherkiosk.receiver.KioskDeviceAdminReceiver
 import com.android.launcherkiosk.ui.actionButton
@@ -33,42 +34,42 @@ class AdminPanelFragment : Fragment() {
         val context = requireContext()
         val root = screenRoot(context)
         val settings = repository.getSettings()
-        root.addView(titleView(context, "管理员后台"))
-        root.addView(bodyView(context, "管理白名单、密码和轻量拦截策略。"))
+        root.addView(titleView(context, getString(R.string.admin_panel)))
+        root.addView(bodyView(context, getString(R.string.admin_panel_description)))
 
         root.addView(Switch(context).apply {
-            text = "启用 Kiosk 模式"
+            text = getString(R.string.enable_kiosk_mode)
             isChecked = settings.kioskEnabled
             setOnCheckedChangeListener { _, checked -> repository.setKioskEnabled(checked) }
         })
         root.addView(Switch(context).apply {
-            text = "启用辅助服务检测"
+            text = getString(R.string.enable_accessibility_detection)
             isChecked = settings.accessibilityEnabled
             setOnCheckedChangeListener { _, checked -> repository.setAccessibilityEnabled(checked) }
         })
         val newPassword = EditText(context).apply {
-            hint = "新管理员密码"
+            hint = getString(R.string.new_admin_password)
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
         root.addView(newPassword)
-        root.addView(actionButton(context, "修改密码") {
+        root.addView(actionButton(context, getString(R.string.change_password)) {
             val value = newPassword.text.toString()
             if (value.length < 4) {
-                Toast.makeText(context, "密码至少 4 位", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.password_min_error, Toast.LENGTH_SHORT).show()
             } else {
                 repository.setAdminPassword(value)
                 newPassword.text.clear()
-                Toast.makeText(context, "密码已修改", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.password_changed, Toast.LENGTH_SHORT).show()
             }
         })
-        root.addView(actionButton(context, "修改白名单") { (requireActivity() as MainActivity).showWhitelist() })
-        root.addView(actionButton(context, "打开设置页") {
+        root.addView(actionButton(context, getString(R.string.change_whitelist)) { (requireActivity() as MainActivity).showWhitelist() })
+        root.addView(actionButton(context, getString(R.string.open_settings_page)) {
             startActivity(Intent(context, AdminSettingsActivity::class.java))
         })
-        root.addView(actionButton(context, "打开系统设置") { startActivity(Intent(Settings.ACTION_SETTINGS)) })
-        root.addView(actionButton(context, "临时退出到系统桌面设置") { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) })
-        root.addView(actionButton(context, "关闭设备管理器权限") { removeDeviceAdmin(context) })
-        root.addView(actionButton(context, "返回主页") { (requireActivity() as MainActivity).showHome() })
+        root.addView(actionButton(context, getString(R.string.open_system_settings)) { startActivity(Intent(Settings.ACTION_SETTINGS)) })
+        root.addView(actionButton(context, getString(R.string.temporary_exit_home_settings)) { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) })
+        root.addView(actionButton(context, getString(R.string.disable_device_admin)) { removeDeviceAdmin(context) })
+        root.addView(actionButton(context, getString(R.string.return_home)) { (requireActivity() as MainActivity).showHome() })
         return root
     }
 
@@ -77,9 +78,9 @@ class AdminPanelFragment : Fragment() {
         val component = ComponentName(context, KioskDeviceAdminReceiver::class.java)
         if (manager.isAdminActive(component)) {
             manager.removeActiveAdmin(component)
-            Toast.makeText(context, "设备管理器权限已关闭", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.device_admin_disabled, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(context, "设备管理器权限未启用", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.device_admin_not_enabled, Toast.LENGTH_SHORT).show()
         }
     }
 }

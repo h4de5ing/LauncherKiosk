@@ -6,9 +6,11 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.os.Build
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
+import androidx.core.graphics.drawable.toDrawable
 
 object AppIconLoader {
     fun loadBoundedIcon(context: Context, packageName: String, sizeDp: Int): Drawable {
@@ -48,11 +50,11 @@ object AppIconLoader {
         val scaled = if (decoded.width == targetPx && decoded.height == targetPx) {
             decoded
         } else {
-            Bitmap.createScaledBitmap(decoded, targetPx, targetPx, true).also {
+            decoded.scale(targetPx, targetPx).also {
                 if (decoded != it) decoded.recycle()
             }
         }
-        return BitmapDrawable(appResources, scaled)
+        return scaled.toDrawable(appResources)
     }
 
     private fun calculateInSampleSize(width: Int, height: Int, targetPx: Int): Int {
@@ -66,18 +68,11 @@ object AppIconLoader {
     }
 
     private fun loadDrawable(resources: Resources, iconRes: Int): Drawable? {
-        return runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                resources.getDrawable(iconRes, null)
-            } else {
-                @Suppress("DEPRECATION")
-                resources.getDrawable(iconRes)
-            }
-        }.getOrNull()
+        return runCatching { ResourcesCompat.getDrawable(resources, iconRes, null) }.getOrNull()
     }
 
     private fun Drawable.toBoundedDrawable(resources: Resources, targetPx: Int): Drawable {
-        val bitmap = Bitmap.createBitmap(targetPx, targetPx, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(targetPx, targetPx)
         val canvas = Canvas(bitmap)
         val width = intrinsicWidth.takeIf { it > 0 } ?: targetPx
         val height = intrinsicHeight.takeIf { it > 0 } ?: targetPx
@@ -88,6 +83,6 @@ object AppIconLoader {
         val top = (targetPx - drawHeight) / 2
         setBounds(left, top, left + drawWidth, top + drawHeight)
         draw(canvas)
-        return BitmapDrawable(resources, bitmap)
+        return bitmap.toDrawable(resources)
     }
 }

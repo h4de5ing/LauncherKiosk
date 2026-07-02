@@ -34,7 +34,7 @@
         <activity
             android:name=".ui.admin.AdminSettingsActivity"
             android:exported="false"
-            android:label="Kiosk 设置" />
+            android:label="@string/kiosk_settings" />
 
         <receiver
             android:name=".receiver.KioskDeviceAdminReceiver"

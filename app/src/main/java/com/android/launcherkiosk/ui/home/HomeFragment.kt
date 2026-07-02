@@ -17,6 +17,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.android.launcherkiosk.R
 import com.android.launcherkiosk.data.KioskRepository
 import com.android.launcherkiosk.ui.admin.AdminSettingsActivity
 import com.android.launcherkiosk.ui.bodyView
@@ -43,7 +44,7 @@ class HomeFragment : Fragment() {
         }
         header.addView(View(context), LinearLayout.LayoutParams(0, 1, 1f))
         header.addView(Button(context).apply {
-            text = "设置"
+            text = getString(R.string.settings)
             setOnClickListener { showAdminPasswordDialog() }
         })
         root.addView(header)
@@ -58,7 +59,7 @@ class HomeFragment : Fragment() {
 
         val apps = repository.getWhitelist()
         if (apps.isEmpty()) {
-            root.addView(bodyView(context, "当前没有白名单应用，请进入管理员后台配置。"))
+            root.addView(bodyView(context, getString(R.string.no_whitelist_apps)))
         } else {
             apps.forEach { app ->
                 val item = LinearLayout(context).apply {
@@ -94,15 +95,15 @@ class HomeFragment : Fragment() {
     private fun showAdminPasswordDialog() {
         val context = requireContext()
         val input = EditText(context).apply {
-            hint = "管理员密码"
+            hint = getString(R.string.admin_password)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
-        AlertDialog.Builder(context).setTitle("管理员验证").setView(input)
-            .setNegativeButton("取消", null).setPositiveButton("进入设置") { _, _ ->
+        AlertDialog.Builder(context).setTitle(R.string.admin_verification).setView(input)
+            .setNegativeButton(R.string.cancel, null).setPositiveButton(R.string.open_settings) { _, _ ->
                 if (repository.verifyPassword(input.text.toString())) {
                     startActivity(Intent(context, AdminSettingsActivity::class.java))
                 } else {
-                    Toast.makeText(context, "密码错误", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.wrong_password, Toast.LENGTH_SHORT).show()
                 }
             }.show()
     }
@@ -110,7 +111,7 @@ class HomeFragment : Fragment() {
     private fun launchApp(packageName: String) {
         val intent = requireContext().packageManager.getLaunchIntentForPackage(packageName)
         if (intent == null) {
-            Toast.makeText(requireContext(), "无法启动该应用", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.unable_launch_app, Toast.LENGTH_SHORT).show()
         } else {
             startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }

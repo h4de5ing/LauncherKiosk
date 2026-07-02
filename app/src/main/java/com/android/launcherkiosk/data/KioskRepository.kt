@@ -1,6 +1,7 @@
 package com.android.launcherkiosk.data
 
 import android.content.Context
+import androidx.core.content.edit
 import java.security.MessageDigest
 import java.security.SecureRandom
 
@@ -17,15 +18,15 @@ class KioskRepository(context: Context) {
     )
 
     fun setSetupCompleted(completed: Boolean) {
-        prefs.edit().putBoolean(KEY_SETUP_COMPLETED, completed).apply()
+        prefs.edit { putBoolean(KEY_SETUP_COMPLETED, completed) }
     }
 
     fun setAdminPassword(password: String) {
         val salt = randomHex(16)
-        prefs.edit()
-            .putString(KEY_PASSWORD_SALT, salt)
-            .putString(KEY_PASSWORD_HASH, sha256("$salt:$password"))
-            .apply()
+        prefs.edit {
+            putString(KEY_PASSWORD_SALT, salt)
+            putString(KEY_PASSWORD_HASH, sha256("$salt:$password"))
+        }
     }
 
     fun verifyPassword(password: String): Boolean {
@@ -52,15 +53,15 @@ class KioskRepository(context: Context) {
         val values = apps.filter { it.enabled }
             .map { "${it.packageName}|${it.appName}" }
             .toSet()
-        prefs.edit().putStringSet(KEY_WHITELIST, values).apply()
+        prefs.edit { putStringSet(KEY_WHITELIST, values) }
     }
 
     fun setKioskEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_KIOSK_ENABLED, enabled).apply()
+        prefs.edit { putBoolean(KEY_KIOSK_ENABLED, enabled) }
     }
 
     fun setAccessibilityEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_ACCESSIBILITY_ENABLED, enabled).apply()
+        prefs.edit { putBoolean(KEY_ACCESSIBILITY_ENABLED, enabled) }
     }
 
     private fun randomHex(bytes: Int): String {
