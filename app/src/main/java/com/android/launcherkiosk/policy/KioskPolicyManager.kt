@@ -22,6 +22,4 @@ class KioskPolicyManager(private val context: Context) {
         val expected = "${context.packageName}/${KioskAccessibilityService::class.java.name}"
         return enabledServices.split(':').any { it.equals(expected, ignoreCase = true) }
     }
-
-    fun canDrawOverlay(): Boolean = Settings.canDrawOverlays(context)
 }

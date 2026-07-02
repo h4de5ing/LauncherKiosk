@@ -46,12 +46,6 @@ class AdminPanelFragment : Fragment() {
             isChecked = settings.accessibilityEnabled
             setOnCheckedChangeListener { _, checked -> repository.setAccessibilityEnabled(checked) }
         })
-        root.addView(Switch(context).apply {
-            text = "启用悬浮窗拦截"
-            isChecked = settings.overlayEnabled
-            setOnCheckedChangeListener { _, checked -> repository.setOverlayEnabled(checked) }
-        })
-
         val newPassword = EditText(context).apply {
             hint = "新管理员密码"
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD

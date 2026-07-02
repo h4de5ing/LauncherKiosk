@@ -6,7 +6,6 @@ import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceCategory
@@ -54,7 +53,7 @@ class AdminSettingsActivity : Activity() {
             screen.addPreference(PreferenceCategory(activity).apply { title = "策略开关" })
             screen.addPreference(SwitchPreference(activity).apply {
                 title = "启用 Kiosk 模式"
-                summary = "关闭后辅助服务和悬浮窗策略不再拦截"
+                summary = "关闭后辅助服务遮罩策略不再拦截"
                 isChecked = settings.kioskEnabled
                 setOnPreferenceChangeListener { _, value ->
                     repository.setKioskEnabled(value as Boolean)
@@ -67,15 +66,6 @@ class AdminSettingsActivity : Activity() {
                 isChecked = settings.accessibilityEnabled
                 setOnPreferenceChangeListener { _, value ->
                     repository.setAccessibilityEnabled(value as Boolean)
-                    true
-                }
-            })
-            screen.addPreference(SwitchPreference(activity).apply {
-                title = "启用悬浮窗拦截"
-                summary = "检测到风险入口时显示顶部遮挡层"
-                isChecked = settings.overlayEnabled
-                setOnPreferenceChangeListener { _, value ->
-                    repository.setOverlayEnabled(value as Boolean)
                     true
                 }
             })
@@ -100,9 +90,6 @@ class AdminSettingsActivity : Activity() {
             })
             screen.addPreference(action("开启辅助服务", accessibilitySummary()) {
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            })
-            screen.addPreference(action("开启悬浮窗权限", overlaySummary()) {
-                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${activity.packageName}")))
             })
             screen.addPreference(action("系统设置", "打开 Android 系统设置") {
                 startActivity(Intent(Settings.ACTION_SETTINGS))
@@ -160,8 +147,7 @@ class AdminSettingsActivity : Activity() {
 
         private fun permissionSummary(): String {
             return "设备管理器: ${enabledText(policyManager.isDeviceAdminActive())}  " +
-                "辅助服务: ${enabledText(policyManager.isAccessibilityServiceEnabled())}  " +
-                "悬浮窗: ${enabledText(policyManager.canDrawOverlay())}"
+                "辅助服务: ${enabledText(policyManager.isAccessibilityServiceEnabled())}"
         }
 
         private fun deviceAdminSummary(): String {
@@ -170,10 +156,6 @@ class AdminSettingsActivity : Activity() {
 
         private fun accessibilitySummary(): String {
             return if (policyManager.isAccessibilityServiceEnabled()) "当前已启用" else "当前未启用"
-        }
-
-        private fun overlaySummary(): String {
-            return if (policyManager.canDrawOverlay()) "当前已启用" else "当前未启用"
         }
 
         private fun enabledText(enabled: Boolean): String = if (enabled) "已启用" else "未启用"

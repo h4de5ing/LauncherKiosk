@@ -6,6 +6,5 @@ data class KioskSettings(
     val adminPasswordSalt: String,
     val kioskEnabled: Boolean,
     val accessibilityEnabled: Boolean,
-    val overlayEnabled: Boolean,
     val deviceAdminEnabled: Boolean
 )

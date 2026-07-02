@@ -13,7 +13,6 @@ class KioskRepository(context: Context) {
         adminPasswordSalt = prefs.getString(KEY_PASSWORD_SALT, "").orEmpty(),
         kioskEnabled = prefs.getBoolean(KEY_KIOSK_ENABLED, true),
         accessibilityEnabled = prefs.getBoolean(KEY_ACCESSIBILITY_ENABLED, true),
-        overlayEnabled = prefs.getBoolean(KEY_OVERLAY_ENABLED, true),
         deviceAdminEnabled = prefs.getBoolean(KEY_DEVICE_ADMIN_ENABLED, true)
     )
 
@@ -64,10 +63,6 @@ class KioskRepository(context: Context) {
         prefs.edit().putBoolean(KEY_ACCESSIBILITY_ENABLED, enabled).apply()
     }
 
-    fun setOverlayEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_OVERLAY_ENABLED, enabled).apply()
-    }
-
     private fun randomHex(bytes: Int): String {
         val data = ByteArray(bytes)
         SecureRandom().nextBytes(data)
@@ -87,7 +82,6 @@ class KioskRepository(context: Context) {
         private const val KEY_WHITELIST = "whitelist"
         private const val KEY_KIOSK_ENABLED = "kiosk_enabled"
         private const val KEY_ACCESSIBILITY_ENABLED = "accessibility_enabled"
-        private const val KEY_OVERLAY_ENABLED = "overlay_enabled"
         private const val KEY_DEVICE_ADMIN_ENABLED = "device_admin_enabled"
     }
 }
