@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LauncherKiosk</string>
+    <string name="accessibility_service_label">LauncherKiosk 防退出服务</string>
 </resources>
