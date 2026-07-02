@@ -4,9 +4,9 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.preference.Preference.OnPreferenceChangeListener
 import android.preference.Preference
 import android.preference.PreferenceCategory
 import android.preference.PreferenceFragment
@@ -48,54 +48,39 @@ class AdminSettingsActivity : Activity() {
 
         private fun buildSettings() {
             val screen = preferenceManager.createPreferenceScreen(activity)
-            val settings = repository.getSettings()
-
-            screen.addPreference(PreferenceCategory(activity).apply { title = "策略开关" })
-            screen.addPreference(SwitchPreference(activity).apply {
-                title = "启用 Kiosk 模式"
-                summary = "关闭后辅助服务遮罩策略不再拦截"
-                isChecked = settings.kioskEnabled
-                setOnPreferenceChangeListener { _, value ->
-                    repository.setKioskEnabled(value as Boolean)
-                    true
-                }
-            })
-            screen.addPreference(SwitchPreference(activity).apply {
-                title = "启用辅助服务检测"
-                summary = "检测设置页、SystemUI 等风险入口"
-                isChecked = settings.accessibilityEnabled
-                setOnPreferenceChangeListener { _, value ->
-                    repository.setAccessibilityEnabled(value as Boolean)
-                    true
-                }
-            })
 
             screen.addPreference(PreferenceCategory(activity).apply { title = "配置" })
-            screen.addPreference(action("应用白名单", "选择主页允许启动的应用") {
-                openMain(MainActivity.ACTION_OPEN_WHITELIST)
-            })
             screen.addPreference(action("修改管理员密码", "更新进入设置页所需的密码") {
                 showPasswordDialog()
             })
+            screen.addPreference(action("应用白名单", "选择主页允许启动的应用") {
+                openMain(MainActivity.ACTION_OPEN_WHITELIST)
+            })
 
             screen.addPreference(PreferenceCategory(activity).apply { title = "权限与系统" })
-            screen.addPreference(action("权限状态", permissionSummary()) {
-                buildSettings()
-            })
-            screen.addPreference(action("默认桌面设置", "将 LauncherKiosk 设为默认桌面") {
+            screen.addPreference(statusSwitch(
+                title = "默认桌面设置",
+                summary = "将 LauncherKiosk 设为默认桌面",
+                checked = policyManager.isDefaultLauncher()
+            ) {
                 startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
             })
-            screen.addPreference(action("启用设备管理器", deviceAdminSummary()) {
+            screen.addPreference(statusSwitch(
+                title = "设备管理器",
+                summary = deviceAdminSummary(),
+                checked = policyManager.isDeviceAdminActive()
+            ) {
                 requestDeviceAdmin()
             })
-            screen.addPreference(action("开启辅助服务", accessibilitySummary()) {
+            screen.addPreference(statusSwitch(
+                title = "辅助服务",
+                summary = accessibilitySummary(),
+                checked = policyManager.isAccessibilityServiceEnabled()
+            ) {
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             })
             screen.addPreference(action("系统设置", "打开 Android 系统设置") {
                 startActivity(Intent(Settings.ACTION_SETTINGS))
-            })
-            screen.addPreference(action("关闭设备管理器权限", deviceAdminSummary()) {
-                removeDeviceAdmin()
             })
             screen.addPreference(action("返回主页", "退出管理员设置") {
                 openMain(null)
@@ -113,6 +98,24 @@ class AdminSettingsActivity : Activity() {
                     block()
                     true
                 }
+            }
+        }
+
+        private fun statusSwitch(
+            title: String,
+            summary: String,
+            checked: Boolean,
+            openSettings: () -> Unit
+        ): SwitchPreference {
+            return SwitchPreference(activity).apply {
+                this.title = title
+                this.summary = summary
+                isChecked = checked
+                setOnPreferenceChangeListener(OnPreferenceChangeListener { preference, _ ->
+                    openSettings()
+                    (preference as SwitchPreference).isChecked = checked
+                    false
+                })
             }
         }
 
@@ -145,31 +148,12 @@ class AdminSettingsActivity : Activity() {
             startActivity(intent)
         }
 
-        private fun permissionSummary(): String {
-            return "设备管理器: ${enabledText(policyManager.isDeviceAdminActive())}  " +
-                "辅助服务: ${enabledText(policyManager.isAccessibilityServiceEnabled())}"
-        }
-
         private fun deviceAdminSummary(): String {
-            return if (policyManager.isDeviceAdminActive()) "当前已启用，点击后关闭" else "当前未启用"
+            return if (policyManager.isDeviceAdminActive()) "当前已启用" else "当前未启用"
         }
 
         private fun accessibilitySummary(): String {
             return if (policyManager.isAccessibilityServiceEnabled()) "当前已启用" else "当前未启用"
-        }
-
-        private fun enabledText(enabled: Boolean): String = if (enabled) "已启用" else "未启用"
-
-        private fun removeDeviceAdmin() {
-            val manager = activity.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            val component = ComponentName(activity, KioskDeviceAdminReceiver::class.java)
-            if (manager.isAdminActive(component)) {
-                manager.removeActiveAdmin(component)
-                Toast.makeText(activity, "设备管理器权限已关闭", Toast.LENGTH_SHORT).show()
-                buildSettings()
-            } else {
-                Toast.makeText(activity, "设备管理器权限未启用", Toast.LENGTH_SHORT).show()
-            }
         }
 
         private fun requestDeviceAdmin() {
