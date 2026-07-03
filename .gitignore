@@ -9,3 +9,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+.keystore
+*.jks
+*.keystore
+*.p12
+*.pfx
+release-keystore.base64.txt
