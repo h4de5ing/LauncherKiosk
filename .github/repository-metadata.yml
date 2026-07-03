@@ -1,0 +1,13 @@
+description: "Open-source Android kiosk launcher with app allowlist, admin password, Device Admin, and Accessibility Service support."
+homepage: ""
+topics:
+  - android
+  - android-kiosk
+  - kiosk
+  - launcher
+  - android-launcher
+  - kotlin
+  - device-admin
+  - accessibility-service
+  - allowlist
+  - mdm

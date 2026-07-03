@@ -16,7 +16,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import com.android.launcherkiosk.data.KioskRepository
-import com.android.launcherkiosk.ui.admin.AdminPanelFragment
 import com.android.launcherkiosk.ui.home.HomeFragment
 import com.android.launcherkiosk.ui.setup.SetupWizardFragment
 import com.android.launcherkiosk.ui.whitelist.AppWhitelistFragment
@@ -52,7 +51,6 @@ class MainActivity : AppCompatActivity() {
 
     fun showSetup() = replace(SetupWizardFragment(), clearBackStack = true)
     fun showHome() = replace(HomeFragment(), clearBackStack = true)
-    fun showAdminPanel() = replace(AdminPanelFragment(), addToBackStack = true)
     fun showWhitelist(fromSetup: Boolean = false) =
         replace(AppWhitelistFragment.newInstance(fromSetup), addToBackStack = true)
 
